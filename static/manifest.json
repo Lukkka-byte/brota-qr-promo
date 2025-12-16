@@ -1,0 +1,13 @@
+{
+    "name": "BROTA Bar-Café",
+    "short_name": "BROTA",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#FBF6EF",
+    "theme_color": "#B06030",
+    "icons": [
+      { "src": "/static/icons/brota-icon-192.png", "sizes": "192x192", "type": "image/png" },
+      { "src": "/static/icons/brota-icon-512.png", "sizes": "512x512", "type": "image/png" }
+    ]
+  }
+  

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>BROTA – Premio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root{
+      --brota-brown: #B06030;
+      --brota-brown-dark: #905030;
+      --brota-olive: #707040;
+      --brota-cream: #FBF6EF;
+      --brota-cream-2: #F3F1EE;
+
+      --text: #111;
+      --muted: #666;
+      --danger: #b00020;
+      --border: rgba(112,112,64,0.14);
+    }
+
+    body{
+      font-family: sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      margin:0;
+      background: radial-gradient(circle at top, var(--brota-cream) 0%, var(--brota-cream-2) 60%, #f5f5f5 100%);
+    }
+
+    .card{
+      max-width: 520px;
+      width: 92%;
+      padding: 22px;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+    }
+
+    .brand-logo{
+      display:block;
+      margin: 2px auto 14px;
+      width: 220px;
+      max-width: 80%;
+      height: auto;
+    }
+
+    h1{
+      font-size: 1.7rem;
+      margin: 0 0 10px;
+      text-align:center;
+      color: var(--text);
+    }
+
+    .lead{
+      text-align:center;
+      color:#222;
+      font-size: 1rem;
+      margin: 0 0 12px;
+      line-height: 1.35rem;
+    }
+
+    .notice{
+  font-size: 0.92rem;
+  margin: 10px 0 14px;
+  line-height: 1.25rem;
+  color: var(--brota-olive);
+font-weight: 700;
+
+  background: rgba(112,112,64,0.08);      /* oliva suave */
+  border: 1px solid rgba(112,112,64,0.18);
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+.info{
+  font-size: 0.92rem;
+  margin: 10px 0 14px;
+  line-height: 1.25rem;
+  color: var(--brota-brown);
+  background: rgba(176,96,48,0.08);   /* marrón tierra suave */
+  border: 1px solid rgba(176,96,48,0.22);
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+
+.footer-legal{
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: #555;
+  display:block;
+}
+
+.footer-legal a{
+  color: #707040; /* verde oliva del logo */
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.footer-legal a:hover{
+  text-decoration: underline;
+}
+
+
+    form{ margin-top: 10px; }
+
+    label{
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    input[type="email"]{
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    input[type="email"]:focus{
+      outline: none;
+      border-color: var(--brota-olive);
+      box-shadow: 0 0 0 3px rgba(112,112,64,0.18);
+    }
+
+    .checkbox-row{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      margin: 6px 0 14px;
+      font-size: 0.9rem;
+      line-height: 1.2rem;
+      color: var(--text);
+    }
+
+    button{
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      background: var(--brota-brown);
+      color: #fff;
+      font-weight: 900;
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    button:hover{ background: var(--brota-brown-dark); }
+
+    .error{
+      color: var(--danger);
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin: 10px 0 12px;
+    }
+
+    small{
+      font-size: 0.82rem;
+      color: var(--muted);
+      display:block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <img class="brand-logo" src="{{ url_for('static', filename='img/brota_logo.png') }}" alt="BROTA Bar-Café">
+
+    <h1>🌱 ¡Brota tu premio!</h1>
+
+    <p class="lead">
+      Descubrí tu sorpresa y activala con tu email.
+    </p>
+
+    <p class="notice">
+      El premio y su vigencia se mostrarán al finalizar.
+      Para canjearlo, será necesario mostrar el código del premio o una captura al personal.
+    </p>
+    
+
+    {% if already_claimed %}
+      <p class="error">
+        Desde este dispositivo ya se ha utilizado una recompensa. Solo se permite una por dispositivo.
+      </p>
+    {% else %}
+
+      {% if error %}
+        <p class="error">{{ error }}</p>
+      {% endif %}
+
+      <form method="post">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required placeholder="tucorreo@ejemplo.com">
+
+        <div class="checkbox-row">
+          <input id="consent" name="consent" type="checkbox">
+          <label for="consent">
+            Acepto recibir recomendaciones y promociones por email de <strong>BROTA Bar-Café</strong>
+            (puedo darme de baja cuando quiera).
+          </label>
+        </div>
+
+        <button type="submit">Descubrir mi premio</button>
+        <small>
+          Al continuar, aceptas nuestra <a href="/privacy">Política de privacidad</a>.
+          Podés <a href="/unsubscribe">darte de baja</a> cuando quieras.
+        </small>
+      </form>
+    {% endif %}
+
+  </div>
+</body>
+</html>

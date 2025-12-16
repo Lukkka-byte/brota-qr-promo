@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>BROTA – Premio activado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root{
+      --brota-brown: #B06030;
+      --brota-brown-dark: #905030;
+      --brota-olive: #707040;
+      --brota-cream: #FBF6EF;
+      --brota-cream-2: #F3F1EE;
+
+      --text: #111;
+      --muted: #666;
+      --border: rgba(112,112,64,0.14);
+    }
+
+    body{
+      font-family: sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      margin:0;
+      background: radial-gradient(circle at top, var(--brota-cream) 0%, var(--brota-cream-2) 60%, #f5f5f5 100%);
+      overflow-x: hidden;
+    }
+
+    .card{
+      position: relative;
+      max-width: 560px;
+      width: 92%;
+      padding: 22px 22px 54px;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+      text-align:center;
+      overflow: hidden;
+    }
+
+    .brand-logo{
+      display:block;
+      margin: 2px auto 14px;
+      width: 220px;
+      max-width: 80%;
+    }
+
+    h1{
+      font-size: 1.85rem;
+      margin: 0 0 10px;
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    /* ===== PREMIO ===== */
+    .prize-box{
+      margin: 14px 0;
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(176,96,48,0.22);
+      background: linear-gradient(180deg, rgba(176,96,48,0.08), rgba(112,112,64,0.06));
+    }
+
+    .prize-label{
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .prize-name{
+      font-size: 1.6rem;
+      font-weight: 1000;
+      color: var(--brota-brown);
+      line-height: 1.25em;
+      animation: pulse 1.6s ease-in-out infinite;
+      margin: 0;
+    }
+
+    .qr-box{
+  margin: 12px auto 6px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  opacity: 0.9;
+}
+
+.qr-box img{
+  width: 120px;          /* 👈 tamaño contenido */
+  height: 120px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+}
+
+.qr-box small{
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+
+    @keyframes pulse{
+      0%   { transform: scale(1); opacity: 1; }
+      50%  { transform: scale(1.04); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .prize-terms{
+      font-size: 1.05rem;
+      color: #222;
+      line-height: 1.35rem;
+      margin-top: 8px;
+      margin-bottom: 0;
+    }
+
+    .code{
+      font-size: 2.3rem;
+      letter-spacing: 0.22rem;
+      font-weight: 1000;
+      margin: 16px 0 10px;
+      color: var(--brota-brown);
+    }
+
+    .dates{
+      font-size: 0.98rem;
+      margin: 8px 0 12px;
+      color:#222;
+    }
+    .dates strong{ color: var(--brota-olive); }
+
+    .redeem-note{
+      font-size: 0.98rem;
+      color: var(--brota-brown-dark);
+      font-weight: 700;
+      margin: 10px 0;
+      background: rgba(176,96,48,0.08);
+      border: 1px solid rgba(176,96,48,0.22);
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    small{
+      font-size: 0.82rem;
+      color: var(--muted);
+      display:block;
+      margin-top: 4px;
+    }
+
+    /* ===== CONFETI ===== */
+    .confetti{
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .confetti i{
+      position: absolute;
+      top: -18px;
+
+      width: var(--w, 10px);
+      height: var(--h, 16px);
+
+      border-radius: 2px;
+      opacity: 0.95;
+
+      /* clave: NO forwards -> no se queda pegado abajo */
+      animation-name: fall;
+      animation-duration: var(--t, 3s);
+      animation-delay: var(--d, 0s);
+      animation-timing-function: linear;
+      animation-fill-mode: both; /* respeta el delay sin quedarse al final */
+      animation-iteration-count: 1;
+    }
+
+    @keyframes fall{
+      0%   { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateY(calc(100vh + 220px)) rotate(360deg); opacity: 0; }
+    }
+
+    .content{
+      position: relative;
+      z-index: 2;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="card">
+
+    <div class="confetti" aria-hidden="true">
+      <!-- OLEADA 1 (0.0s–0.5s) -->
+      <i style="left:3%;  background:#B06030; --d:0.05s; --t:2.8s; --w:10px; --h:16px;"></i>
+      <i style="left:9%;  background:#707040; --d:0.18s; --t:3.2s; --w:8px;  --h:14px;"></i>
+      <i style="left:15%; background:#E7D8C7; --d:0.30s; --t:3.0s; --w:11px; --h:18px;"></i>
+      <i style="left:21%; background:#C8B39F; --d:0.42s; --t:3.4s; --w:9px;  --h:15px;"></i>
+
+      <i style="left:60%; background:#B06030; --d:0.12s; --t:3.1s; --w:10px; --h:16px;"></i>
+      <i style="left:68%; background:#707040; --d:0.28s; --t:3.3s; --w:8px;  --h:14px;"></i>
+      <i style="left:76%; background:#E7D8C7; --d:0.40s; --t:3.0s; --w:11px; --h:18px;"></i>
+      <i style="left:84%; background:#C8B39F; --d:0.50s; --t:3.5s; --w:9px;  --h:15px;"></i>
+
+      <!-- OLEADA 2 (0.7s–1.3s) -->
+      <i style="left:6%;  background:#707040; --d:0.75s; --t:3.4s; --w:9px;  --h:15px;"></i>
+      <i style="left:12%; background:#B06030; --d:0.95s; --t:3.0s; --w:10px; --h:16px;"></i>
+      <i style="left:27%; background:#E7D8C7; --d:1.10s; --t:3.2s; --w:8px;  --h:14px;"></i>
+      <i style="left:35%; background:#C8B39F; --d:1.25s; --t:3.6s; --w:11px; --h:18px;"></i>
+
+      <i style="left:57%; background:#707040; --d:0.82s; --t:3.3s; --w:9px;  --h:15px;"></i>
+      <i style="left:66%; background:#B06030; --d:1.05s; --t:3.1s; --w:10px; --h:16px;"></i>
+      <i style="left:73%; background:#E7D8C7; --d:1.18s; --t:3.4s; --w:8px;  --h:14px;"></i>
+      <i style="left:92%; background:#C8B39F; --d:1.30s; --t:3.6s; --w:11px; --h:18px;"></i>
+
+      <!-- OLEADA 3 (1.6s–2.3s) -->
+      <i style="left:4%;  background:#B06030; --d:1.65s; --t:3.2s; --w:10px; --h:16px;"></i>
+      <i style="left:18%; background:#707040; --d:1.82s; --t:3.5s; --w:8px;  --h:14px;"></i>
+      <i style="left:41%; background:#E7D8C7; --d:2.00s; --t:3.3s; --w:11px; --h:18px;"></i>
+      <i style="left:49%; background:#C8B39F; --d:2.18s; --t:3.7s; --w:9px;  --h:15px;"></i>
+
+      <i style="left:62%; background:#B06030; --d:1.72s; --t:3.3s; --w:10px; --h:16px;"></i>
+      <i style="left:71%; background:#707040; --d:1.94s; --t:3.6s; --w:8px;  --h:14px;"></i>
+      <i style="left:80%; background:#E7D8C7; --d:2.10s; --t:3.2s; --w:11px; --h:18px;"></i>
+      <i style="left:96%; background:#C8B39F; --d:2.28s; --t:3.8s; --w:9px;  --h:15px;"></i>
+    </div>
+
+    <div class="content">
+      <img class="brand-logo" src="{{ url_for('static', filename='img/brota_logo.png') }}" alt="BROTA Bar-Café">
+
+      <h1>✅ ¡Premio activado!</h1>
+
+      <div class="prize-box">
+        <p class="prize-label">🎟️ Tu premio:</p>
+        <p class="prize-name">{{ reward_name }}</p>
+        <p class="prize-terms">{{ reward_terms }}</p>
+      </div>
+
+      <div class="code">{{ reward_code }}</div>
+      <div class="qr-box">
+        <img
+          src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data={{ reward_code }}"
+          alt="QR del premio"
+        >
+        <small>Escaneable para canje en barra</small>
+      </div>
+      
+
+      <p class="dates">
+        Válido desde el <strong>{{ valid_from.strftime('%d/%m/%Y') }}</strong>
+        hasta el <strong>{{ valid_to.strftime('%d/%m/%Y') }}</strong>.
+      </p>
+
+      <p class="redeem-note">
+        Mostrá esta pantalla o una captura al camarero para canjear tu premio.
+      </p>
+
+      <small>Una recompensa por persona. No acumulable con otras promociones.</small>
+      <small>
+        ¿No querés recibir emails?
+        <a href="/unsubscribe">Darme de baja</a>
+      </small>
+    </div>
+
+  </div>
+</body>
+</html>

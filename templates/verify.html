@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Verificar premio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+<link rel="icon" type="image/png" sizes="32x32"
+      href="{{ url_for('static', filename='icons/favicon-32.png') }}">
+<link rel="apple-touch-icon"
+      href="{{ url_for('static', filename='icons/apple-touch-icon.png') }}">
+<meta name="theme-color" content="#B06030">
+
+
+
+<style>
+  body{ font-family:sans-serif; background:#f6f3ef; margin:0; }
+  .wrap{ max-width:520px; margin:24px auto; background:#fff; padding:18px; border-radius:14px; box-shadow:0 10px 24px rgba(0,0,0,0.12); }
+  h1{ margin:0 0 10px; }
+  input{ width:100%; padding:14px; font-size:1.15rem; border-radius:12px; border:1px solid #ccc; box-sizing:border-box; }
+  button{ width:100%; margin-top:10px; padding:14px; font-weight:900; border-radius:12px; border:none; cursor:pointer; }
+  .ok{ background:#1b7f3a; color:#fff; }
+  .bad{ background:#b00020; color:#fff; }
+  .warn{ background:#8a5a00; color:#fff; }
+  .info{ background:#707040; color:#fff; }
+  .btn{ background:#B06030; color:#fff; }
+  .box{ margin-top:16px; padding:14px; border-radius:12px; border:1px solid rgba(0,0,0,0.08); }
+  small{ color:#666; display:block; margin-top:6px; line-height:1.2rem; }
+
+  
+  /* Modal escáner */
+  .modal{
+    position:fixed; inset:0; background:rgba(0,0,0,0.55);
+    display:none; align-items:center; justify-content:center; padding:16px;
+  }
+  .modal.open{ display:flex; }
+  .modal-card{
+    width:min(520px, 100%);
+    background:#fff; border-radius:14px; padding:14px;
+  }
+  .modal-top{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-bottom:10px;
+  }
+  .close{
+    width:auto; padding:10px 12px; border-radius:10px; background:#111; color:#fff;
+  }
+  #qr-reader{ width:100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🔎 Verificar premio</h1>
+  <small>Tip: abre esto en el móvil del camarero.</small>
+
+  <button class="btn" id="open-scan" type="button">📷 Escanear QR del cliente</button>
+
+  <form method="post">
+    <input name="code" placeholder="O pega el código (ej. A7K9P2)" value="{{ code }}" autocomplete="off">
+    <button class="info">Verificar</button>
+  </form>
+
+  {% if result %}
+    <div class="box">
+      {% if result.status == "NOT_FOUND" %}
+        <button class="bad" type="button">❌ Código inexistente</button>
+
+      {% elif result.status == "BLOCKED" %}
+        <button class="bad" type="button">⛔ Premio BLOQUEADO</button>
+
+      {% elif result.status == "REDEEMED" %}
+        <button class="warn" type="button">⚠️ Ya CANJEADO</button>
+        <small>{{ result.when }}</small>
+
+      {% elif result.status == "EXPIRED" %}
+        <button class="bad" type="button">⏰ Premio CADUCADO</button>
+
+      {% elif result.status == "NOT_YET" %}
+        <button class="warn" type="button">⏳ Aún no válido</button>
+        <small>Válido desde {{ result.from.strftime('%d/%m/%Y') }}</small>
+
+      {% elif result.status == "OK" %}
+        <button class="ok" type="button">✅ VÁLIDO</button>
+        <p style="margin:10px 0 6px;"><strong>{{ result.reward }}</strong></p>
+        <small>{{ result.terms }}</small>
+
+        <form method="post" action="/admin/redeem/{{ result.sub_id }}?password={{ pwd }}&next=verify">
+
+          <button class="ok" type="submit">CANJEAR AHORA</button>
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- Modal escáner -->
+<div class="modal" id="scan-modal" aria-hidden="true">
+  <div class="modal-card">
+    <div class="modal-top">
+      <strong>Escanear QR</strong>
+      <button class="close" id="close-scan" type="button">Cerrar</button>
+    </div>
+    <div id="qr-reader"></div>
+    <small>Apunta al QR del cliente. Al leerlo, se verifica automáticamente.</small>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+  const modal = document.getElementById("scan-modal");
+  const openBtn = document.getElementById("open-scan");
+  const closeBtn = document.getElementById("close-scan");
+  let qr = null;
+
+  function openScanner(){
+    modal.classList.add("open");
+    const el = document.getElementById("qr-reader");
+    el.innerHTML = "";
+
+    qr = new Html5Qrcode("qr-reader");
+    qr.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      (decodedText) => {
+        let code = decodedText;
+
+        // si el QR contiene una URL con code=..., extraemos solo el code
+        try{
+          const u = new URL(decodedText);
+          const c = (u.searchParams.get("code") || "").trim();
+          if(c) code = c;
+        }catch(e){}
+
+        code = (code || "").trim().toUpperCase();
+
+        qr.stop().then(() => qr.clear()).catch(()=>{});
+        modal.classList.remove("open");
+
+        const url = new URL(window.location.href);
+        url.searchParams.set("code", code);
+        window.location.href = url.toString();
+      }
+    ).catch(() => {
+      alert("No se pudo abrir la cámara. Revisa permisos del navegador.");
+      modal.classList.remove("open");
+    });
+  }
+
+  function closeScanner(){
+    modal.classList.remove("open");
+    if(qr){
+      qr.stop().then(() => qr.clear()).catch(()=>{});
+      qr = null;
+    }
+  }
+
+  openBtn.addEventListener("click", openScanner);
+  closeBtn.addEventListener("click", closeScanner);
+</script>
+</body>
+</html>

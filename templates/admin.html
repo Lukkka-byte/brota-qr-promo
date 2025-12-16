@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Admin – Premios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{ font-family:sans-serif; margin:0; background:#f6f3ef; color:#111; }
+    .wrap{ max-width:1100px; margin:0 auto; padding:18px; }
+    h1{ margin:0 0 12px; }
+    .bar{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+    input{ padding:10px; border-radius:10px; border:1px solid #ccc; min-width:260px; }
+    button{ padding:10px 12px; border:none; border-radius:10px; cursor:pointer; font-weight:800; }
+    .btn{ background:#B06030; color:#fff; }
+    .btn2{ background:#707040; color:#fff; }
+    .btn3{ background:#b00020; color:#fff; }
+    table{ width:100%; border-collapse:collapse; background:#fff; border-radius:14px; overflow:hidden; }
+    th,td{ text-align:left; padding:10px; border-bottom:1px solid rgba(0,0,0,0.06); vertical-align:top; }
+    th{ background:#fbf6ef; }
+
+    .tag{ display:inline-block; padding:4px 8px; border-radius:999px; font-size:0.85rem; font-weight:800; }
+    .ok{ background:#e9f7ee; color:#1b7f3a; }
+    .used{ background:#fff5e6; color:#8a5a00; }
+    .bad{ background:#fde8ec; color:#b00020; }
+    .expired{ background:#eee; color:#666; }
+    .pending{ background:#eef2ff; color:#3b4cca; } /* 👈 NUEVO */
+
+    small{ color:#666; }
+    form{ display:inline; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin – Premios</h1>
+
+  <div class="bar">
+    <form method="get" action="/admin">
+      <input type="hidden" name="password" value="{{ pwd }}">
+      <input name="q" placeholder="Buscar por código" value="{{ q }}">
+      <button class="btn">Buscar</button>
+    </form>
+
+    <a href="/admin?password={{ pwd }}" style="text-decoration:none;">
+      <button class="btn2" type="button">Ver todo</button>
+    </a>
+
+    <a href="/admin/export?password={{ pwd }}" style="text-decoration:none;">
+      <button class="btn">⬇️ Exportar emails</button>
+    </a>
+    
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Estado</th>
+        <th>Código</th>
+        <th>Premio</th>
+        <th>Email</th>
+        <th>Consent</th>
+        <th>Vigencia</th>
+        <th>Alta</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for s in subscribers %}
+      {% set vigente = (s.valid_from <= today <= s.valid_to) %}
+      <tr>
+        <td>
+          {% if s.voided_at %}
+            <span class="tag bad">BLOQUEADO</span>
+          {% elif s.redeemed_at %}
+            <span class="tag used">CANJEADO</span>
+
+          {% elif today < s.valid_from %}
+            <span class="tag pending">AÚN NO VÁLIDO</span>
+
+          {% elif today > s.valid_to %}
+            <span class="tag expired">CADUCADO</span>
+
+          {% else %}
+            <span class="tag ok">NO CANJEADO</span>
+          {% endif %}
+        </td>
+
+        <td><strong>{{ s.reward_code }}</strong></td>
+
+        <td>
+          <strong>{{ s.reward_name }}</strong><br>
+          <small>{{ s.reward_terms }}</small>
+        </td>
+
+        <td>{{ s.email }}</td>
+
+        <td>
+          {% if s.consent %}
+            <span class="tag ok">Sí</span>
+          {% else %}
+            <span class="tag bad">No</span>
+          {% endif %}
+        </td>
+
+        <td>{{ s.valid_from.strftime('%d/%m/%Y') }} → {{ s.valid_to.strftime('%d/%m/%Y') }}</td>
+        <td><small>{{ s.created_at }}</small></td>
+
+        <td>
+          {% if vigente and not s.redeemed_at and not s.voided_at %}
+            <form method="post" action="/admin/redeem/{{ s.id }}?password={{ pwd }}">
+              <button class="btn">Canjear</button>
+            </form>
+          {% endif %}
+
+          {% if not s.voided_at and not s.redeemed_at %}
+            <form method="post" action="/admin/void/{{ s.id }}?password={{ pwd }}">
+              <button class="btn3">Bloquear</button>
+            </form>
+          {% elif s.voided_at %}
+            <form method="post" action="/admin/unvoid/{{ s.id }}?password={{ pwd }}">
+              <button class="btn2">Desbloquear</button>
+            </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <p style="margin-top:12px;">
+    <small>
+      Tip: si el cliente enseña el código y aparece como CANJEADO, BLOQUEADO o CADUCADO, no se aplica.
+      Si pone “AÚN NO VÁLIDO”, significa que el premio empieza desde {{ subscribers[0].valid_from.strftime('%d/%m/%Y') if subscribers else 'mañana' }} (según vigencia).
+    </small>
+  </p>
+</div>
+</body>
+</html>

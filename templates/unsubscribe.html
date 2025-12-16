@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Darme de baja – BROTA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{ font-family:sans-serif; margin:0; background:#faf7f2; color:#111; }
+    .wrap{ max-width:520px; margin:0 auto; padding:22px; }
+    .card{ background:#fff; border:1px solid rgba(0,0,0,0.08); border-radius:14px; padding:18px; }
+    label{ font-weight:700; }
+    input{ width:100%; padding:12px; margin:8px 0 12px; border-radius:10px; border:1px solid #ccc; box-sizing:border-box; }
+    button{ width:100%; padding:12px; border:none; border-radius:10px; background:#B06030; color:#fff; font-weight:900; cursor:pointer; }
+    .msg{ margin:10px 0; font-weight:700; color:#1b7f3a; }
+    .err{ margin:10px 0; font-weight:700; color:#b00020; }
+    small{ display:block; margin-top:12px; color:#666; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Darme de baja</h1>
+    <div class="card">
+      <p>Introduce tu email para dejar de recibir comunicaciones por correo.</p>
+
+      {% if msg %}
+        <p class="msg">{{ msg }}</p>
+      {% endif %}
+      {% if error %}
+        <p class="err">{{ error }}</p>
+      {% endif %}
+
+      <form method="post">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required placeholder="tucorreo@ejemplo.com">
+        <button type="submit">Procesar baja</button>
+      </form>
+
+      <small>Si tu email estaba registrado, procesaremos la baja.</small>
+    </div>
+  </div>
+</body>
+</html>
