@@ -29,6 +29,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
+with app.app_context():
+    db.create_all()
+
+
 # 🔑 Admin
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "cambialo-porfavor")
 
@@ -352,8 +356,4 @@ def verify_code():
     return render_template("verify.html", pwd=pwd, result=result, code=code)
 
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(host="0.0.0.0", port=5000)
 
