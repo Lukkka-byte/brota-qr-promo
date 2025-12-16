@@ -29,8 +29,6 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-with app.app_context():
-    db.create_all()
 
 
 # 🔑 Admin
@@ -356,4 +354,5 @@ def verify_code():
     return render_template("verify.html", pwd=pwd, result=result, code=code)
 
 
-
+with app.app_context():
+    db.create_all()
