@@ -1,7 +1,7 @@
 {
   "name": "Brota – Verificación",
   "short_name": "Brota Scan",
-  "start_url": "/verify",
+  "start_url": "/verify?password=Brota1239",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2e7d32",
