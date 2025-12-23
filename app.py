@@ -356,7 +356,7 @@ def verify_code():
     return render_template("verify.html", pwd=pwd, result=result, code=code)
 
     @app.route("/coupon/<code>.png", methods=["GET"])
-def coupon_png(code):
+    def coupon_png(code):
     code = (code or "").strip().upper()
     sub = Subscriber.query.filter_by(reward_code=code).first_or_404()
 
