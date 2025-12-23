@@ -2,9 +2,11 @@ import os
 from datetime import date, timedelta, datetime
 import string
 import secrets
+from PIL import Image, ImageDraw, ImageFont
+import segno
 from zoneinfo import ZoneInfo
 import csv
-from io import StringIO
+from io import StringIO, BytesIO
 
 from flask import (
     Flask, render_template, request, abort,
@@ -352,6 +354,128 @@ def verify_code():
             }
 
     return render_template("verify.html", pwd=pwd, result=result, code=code)
+
+    @app.route("/coupon/<code>.png", methods=["GET"])
+def coupon_png(code):
+    code = (code or "").strip().upper()
+    sub = Subscriber.query.filter_by(reward_code=code).first_or_404()
+
+    # ---- QR con el CÓDIGO (no metemos password ni nada) ----
+    qr = segno.make(sub.reward_code, error='m')
+    qr_buf = BytesIO()
+    qr.save(qr_buf, kind="png", scale=8, border=2)
+    qr_buf.seek(0)
+    qr_img = Image.open(qr_buf).convert("RGBA")
+
+    # ---- Cupón "pro" 1080x1350 ----
+    W, H = 1080, 1350
+    CREAM = (251, 246, 239)
+    CREAM2 = (243, 241, 238)
+    BROWN = (176, 96, 48)
+    OLIVE = (112, 112, 64)
+    TEXT = (17, 17, 17)
+    MUTED = (90, 90, 90)
+    WHITE = (255, 255, 255)
+
+    img = Image.new("RGB", (W, H), CREAM)
+    draw = ImageDraw.Draw(img)
+    for y in range(H):
+        t = y / (H - 1)
+        r = int(CREAM[0] * (1 - t) + CREAM2[0] * t)
+        g = int(CREAM[1] * (1 - t) + CREAM2[1] * t)
+        b = int(CREAM[2] * (1 - t) + CREAM2[2] * t)
+        draw.line([(0, y), (W, y)], fill=(r, g, b))
+
+    # Fuentes (si no encuentra, usa default)
+    try:
+        f_title = ImageFont.truetype("DejaVuSans-Bold.ttf", 56)
+        f_reward = ImageFont.truetype("DejaVuSans-Bold.ttf", 48)
+        f_terms = ImageFont.truetype("DejaVuSans.ttf", 38)
+        f_code  = ImageFont.truetype("DejaVuSans-Bold.ttf", 84)
+        f_small = ImageFont.truetype("DejaVuSans.ttf", 30)
+    except Exception:
+        f_title = f_reward = f_terms = f_code = f_small = ImageFont.load_default()
+
+    # Helper wrap
+    def wrap(text, font, max_w):
+        words = (text or "").split()
+        lines, line = [], ""
+        for w in words:
+            test = (line + " " + w).strip()
+            if draw.textlength(test, font=font) <= max_w:
+                line = test
+            else:
+                if line:
+                    lines.append(line)
+                line = w
+        if line:
+            lines.append(line)
+        return lines
+
+    # Card
+    pad = 70
+    x1, y1 = pad, 210
+    x2, y2 = W - pad, H - 180
+    draw.rounded_rectangle((x1, y1, x2, y2), radius=40, fill=WHITE, outline=(220, 205, 190), width=4)
+
+    y = y1 + 50
+
+    # Logo si existe
+    try:
+        logo_path = os.path.join(app.root_path, "static", "img", "brota_logo.png")
+        logo = Image.open(logo_path).convert("RGBA")
+        maxw = 520
+        ratio = maxw / logo.size[0]
+        logo = logo.resize((int(logo.size[0] * ratio), int(logo.size[1] * ratio)))
+        img.paste(logo, (int((W - logo.size[0]) / 2), y), logo)
+        y += logo.size[1] + 28
+    except Exception:
+        y += 20
+
+    draw.text((W//2, y), "🌱 TU PREMIO", fill=TEXT, font=f_title, anchor="mm")
+    y += 70
+
+    # Premio
+    max_w = (x2 - x1) - 110
+    for line in wrap(sub.reward_name, f_reward, max_w)[:3]:
+        draw.text((W//2, y), line, fill=BROWN, font=f_reward, anchor="mm")
+        y += 60
+    y += 10
+
+    # Términos
+    for line in wrap(sub.reward_terms, f_terms, max_w)[:4]:
+        draw.text((W//2, y), line, fill=MUTED, font=f_terms, anchor="mm")
+        y += 48
+
+    y += 25
+
+    # Código
+    draw.text((W//2, y), sub.reward_code, fill=BROWN, font=f_code, anchor="mm")
+    y += 120
+
+    # QR (lo pegamos centrado)
+    qr_size = 360
+    qr_img = qr_img.resize((qr_size, qr_size))
+    img.paste(qr_img, (W//2 - qr_size//2, y), qr_img)
+    y += qr_size + 30
+
+    # Vigencia
+    vf = sub.valid_from.strftime("%d/%m/%Y")
+    vt = sub.valid_to.strftime("%d/%m/%Y")
+    draw.text((W//2, y), f"Válido: {vf} → {vt}", fill=OLIVE, font=f_terms, anchor="mm")
+    y += 55
+
+    draw.text((W//2, y), "Mostrá este cupón al camarero ✅", fill=TEXT, font=f_small, anchor="mm")
+
+    # Entrega PNG
+    out = BytesIO()
+    img.save(out, format="PNG")
+    out.seek(0)
+
+    resp = Response(out.getvalue(), mimetype="image/png")
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
 
 
 with app.app_context():

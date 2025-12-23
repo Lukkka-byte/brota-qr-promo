@@ -1,4 +1,6 @@
-flask
-flask_sqlalchemy
+Flask
+Flask-SQLAlchemy
 gunicorn
 psycopg2-binary
+Pillow
+segno
