@@ -89,22 +89,27 @@ def pick_random_reward():
     # Solo por la mañana
     if is_morning_now():
         rewards.append({
-            "name": "🌱 Momento dulce: porción de tarta",
+            "name": "🌱 Momento dulce: Pasta Frola (Tarta de membrillo)",
             "terms": "✅ Válido en horario de mañana con la compra de 1 café o bebida. ⚠️ Sujeto a disponibilidad."
         })
 
+    # Resto del día (y también mañana) - premios base
     rewards.extend([
         {
             "name": "🥟 Empanada a elegir (pollo o carne)",
-            "terms": "✅ Válido con la compra de 1 consumición. ⚠️ Sujeto a disponibilidad."
+            "terms": "✅ Válido con la compra de cualquier artículo (comida o bebida). ⚠️ Sujeto a disponibilidad."
+        },
+        {
+            "name": "🍺 Botellín gratis",
+            "terms": "✅ Válido con la compra de cualquier artículo (comida o bebida). ⚠️ Sujeto a disponibilidad."
         },
         {
             "name": "🍰 Postre gratis",
-            "terms": "✅ Válido con la compra de 1 tapa, sándwich o menú. ⚠️ Sujeto a disponibilidad."
+            "terms": "✅ Válido con la compra de 1 tapa, bocadillo o menú. ⚠️ Sujeto a disponibilidad."
         },
         {
-            "name": "🍺 Cerveza en botella",
-            "terms": "✅ Válido con la compra de 1 consumición. ⚠️ Sujeto a disponibilidad."
+            "name": "🥖 Bocadillo de milanesa",
+            "terms": "✅ Válido con un consumo mínimo adicional de 5€ (comida o bebida). ⚠️ Sujeto a disponibilidad."
         },
         {
             "name": "🍽️ 15% de descuento en Menú del día",
@@ -113,6 +118,7 @@ def pick_random_reward():
     ])
 
     return secrets.choice(rewards)
+
 
 
 @app.route("/", methods=["GET", "POST"])
